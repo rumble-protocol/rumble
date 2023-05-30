@@ -36,18 +36,18 @@ B then does the same for C, and so does C for the final recipient D.
 
 If the Recipient doesn't trust the Witness (Sender failed to guess the mutually trusted Witness correctly, or the Recipient's list changed in the meantime), then it will ignore the IOU from C, and the entire transaction will timeout eventually.
 
-Otherwise the Recipient will send the preimage to the Witness.
+Otherwise, the Recipient will send the preimage to the Witness.
 
-If the Witness is honest, it publishes the preimage in the log before the timeout (defined by block number), in which case the Recipient will have a valid IOU, and the Sender will have a reciept of the payment.
+If the Witness is honest, it publishes the preimage in the log before the timeout (defined by block number), in which case the Recipient will have a valid IOU, and the Sender will have a receipt of the payment.
 
-Same will apply to B, and C, either by watching the log themselves, or by getting the proof from the Recipient and passing it up the chain.
+The same will apply to B, and C, either by watching the log themselves or by getting the proof from the Recipient and passing it up the chain.
 
-However, the Witness can still disrupt the transaction, either maliciously or out of incompetence, especially if the nodes don't gossip the log, and only directly poll the Witness API themselves:
+However, the Witness can still disrupt the transaction, either maliciously or out of incompetence, especially if the nodes don't gossip about the log, and only directly poll the Witness API themselves:
 
 1. **Bad clock** 
-- The Witness may slow down creating (or publishing) blocks, so despite the inclusion of the preimage _before_ the timeout block, it is seen by the one or all participants _after_ the timeout period they intended.
-- The Recipient gets a valid payment, and the Sender gets a valid receipt however it maybe too late to use that reciept as intended.
-- According to the specific case, either the Sender or the Reciever will effectively lose money because of this distruption, and won't trust the Witness again.
+- The Witness may slow down creating (or publishing) blocks, so despite the inclusion of the preimage _before_ the timeout block, it is seen by one or all participants _after_ the timeout period they intended.
+- The Recipient gets a valid payment, and the Sender gets a valid receipt however it may be too late to use that receipt as intended.
+- According to the specific case, either the Sender or the Reciever will effectively lose money because of this disruption, and won't trust the Witness again.
 
 2. **Censorship**
 - The Witness does NOT publish the preimage in the public log.
@@ -55,22 +55,22 @@ However, the Witness can still disrupt the transaction, either maliciously or ou
 - The Recipient can't prove any malice, but it will not trust the Witness anymore, on the basis of incompetence, or censorship.
 
 3. **Duplicity**
-- It is possible that the Witness colludes with the Sender, by showing the Recipient a proof of inclusion of the preimage (the condition of the validity of the IOU), but publicly publish another fork that excludes the preimage until the timeout block.
+- It is possible that the Witness colludes with the Sender, by showing the Recipient proof of inclusion of the preimage (the condition of the validity of the IOU), but publicly publishes another fork that excludes the preimage until the timeout block.
 - Now the Recipient serves the Sender thinking that they now have a valid IOU from their direct counterpart C.
 - As soon as the Recipient tries to "collect" the IOU from C, C can offer the exclusion proof, and the IOU is considered invalid.
-- However, now both the Recipient and C have a proof of duplicity, and can use it to prove to everyone involved, and the wider network that that log should never be trusted again.
+- However, now both the Recipient and C have proof of duplicity and can use it to prove to everyone involved and the wider network that the Witness should never be trusted again.
 
-Put in other words, users can lose value by the incompetence, censorship, but they will lose the users' trust. The log can't steal funds, but it can help the Sender steal, risking a fatal blow to its repuatation.
+Put in other words, users can lose some value by the incompetence, or censorship by the Witness, but they will lose the users' trust. The log can't steal funds, but it can help the Sender steal, risking a fatal blow to its reputation.
 
-Users can easily detect censorship and bad service, but for duplicity, the need to actively communicate and compare their prespectives of the log.
+Users can easily detect censorship and bad service, but for duplicity, the need to actively communicate and compare their perspectives of the log.
 
 ### Watchtowers
 
-Duplicity proofs are objective, and can be demonstrated by anyone to anyone, but it is probably impracticle to expect all users to gossip these proofs.
+Duplicity proofs are objective and can be demonstrated by anyone to anyone, but it is probably impractical to expect all users to gossip these proofs.
 
 Watchtowers are proposed repositories, that users can query or submit duplicity proof to.
 
-These Watchtowers in turn, can either federate, or gossip using more p2p approaches.
+These Watchtowers, in turn, can either federate or gossip using more p2p approaches.
 
 Who would want to run a watchtower?
 
@@ -78,3 +78,15 @@ Who would want to run a watchtower?
 2. Wallet developers
 3. Exchanges
 4. Markets
+
+### Non-interactivity
+
+In a direct payment to a trusted counterpart, there is no need for interactivity, you can sign an IOU with no conditions, and send it to your counterpart through any asynchronous communication channel like Email.
+
+In routed payments, for example, A -> B -> C -> D if the Recipient node is offline if a route can be found to C, then the Sender A can communicate with C instead, requesting receipt from C (hash of a preimage), plus an IOU from C to D conditioned on the publishing of a preimage in a mutually trusted witness between A, C.
+
+Once Sender A gets the preimage, it now has a valid IOU from C to D as well, and it can send it to the Recipient using any asynchronous communication channel.
+
+The Recipient will then have access to the funds as soon as they are online. 
+
+Assuming this is a tip, a donation, or some other sort of transaction that doesn't need an Invoice, the transaction is considered successful even if the Recipient never responds, as the Sender still has proof it was successful.
